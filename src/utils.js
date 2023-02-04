@@ -1,29 +1,19 @@
-export const parseVtt = (text) => {
+const parseVtt = (text) => {
   let subtitles = [];
   let lines = text.split("\n");
-  let currentSub = null;
 
-  for (let line of lines) {
-    line = line.trim();
-    if (!line) {
-      continue;
+  lines.forEach((line) => {
+    let trimmedLine = line.trim();
+    if (!trimmedLine) return;
+
+    if (trimmedLine.startsWith("00:")) {
+      const [start, end] = trimmedLine.split(" --> ");
+      subtitles.push({ start, end, text: "" });
+    } else if (subtitles.length) {
+      let currentSub = subtitles[subtitles.length - 1];
+      currentSub.text += trimmedLine + "\n";
     }
-
-    if (line.startsWith("00:")) {
-      let parts = line.split(" --> ");
-      let start = parts[0];
-      let end = parts[1];
-
-      currentSub = {
-        start: start,
-        end: end,
-        text: "",
-      };
-      subtitles.push(currentSub);
-    } else if (currentSub) {
-      currentSub.text += line + "\n";
-    }
-  }
+  });
 
   return subtitles;
 };
